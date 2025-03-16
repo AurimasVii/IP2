@@ -10,14 +10,14 @@ namespace AVLProject {
     AVLTree::~AVLTree() = default;
     AVLTree::AVLTree(const AVLTree& other) : pImpl(std::make_unique<AVLTreeImpl>()) {
         if (other.pImpl->root) {
-            pImpl->root = pImpl->copyTree(other.pImpl->root); // Ensure deep copy
+            pImpl->root = pImpl->copyTree(other.pImpl->root);
         }
     }
     AVLTree& AVLTree::operator=(const AVLTree& other) {
         if (this != &other) {
             pImpl->freeMemory(pImpl->root);
             if (other.pImpl->root) {
-                pImpl->root = pImpl->copyTree(other.pImpl->root); // Ensure deep copy
+                pImpl->root = pImpl->copyTree(other.pImpl->root); 
             } else {
                 pImpl->root = nullptr;
             }
