@@ -27,7 +27,7 @@ run_demo: build_demo
 	./$(DEMO_BIN)
 
 run_test: build_test
-	./$(TEST_BIN) > $(TEST_LOG) || cat $(TEST_LOG)
+	./$(TEST_BIN) 2>&1 | tee $(TEST_LOG)
 
 clean:
 	rm -f $(DEMO_BIN) $(TEST_BIN) $(CLASS_OBJ) $(TEST_LOG) *.exe

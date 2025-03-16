@@ -1,101 +1,139 @@
 #include "AVL_TREE.h"
 #include <iostream>
 #include <algorithm>
-#include <memory>
 #include <sstream>
 
 namespace AVLProject {
 
+    class AVLTreeImpl {
+    public:
+        AVLNode* root;
+
+        AVLTreeImpl() : root(nullptr) {}
+        ~AVLTreeImpl() { freeMemory(root); }
+
+        AVLNode* insertNode(AVLNode* node, const double& val, AVLNode* parent);
+        AVLNode* deleteNode(AVLNode* node, const double& val);
+        AVLNode* minValueNode(AVLNode* node);
+        void freeMemory(AVLNode* node);
+        void inOrderTraversal(AVLNode* node, std::ostream& os) const;
+        bool searchNode(AVLNode* node, const double& val) const;
+        int getHeight(const AVLNode* node) const;
+        int getBalanceFactor(const AVLNode* node) const;
+        AVLNode* rotateRight(AVLNode* y);
+        AVLNode* rotateLeft(AVLNode* x);
+        AVLNode* copyTree(const AVLNode* node) const;
+        int countNodes(AVLNode* node) const;
+        double sumValues(AVLNode* node) const;
+        bool compareTrees(const AVLNode* a, const AVLNode* b) const;
+    };
+
     AVLTree::AVLTree() : pImpl(std::make_unique<AVLTreeImpl>()) {}
-    AVLTree::~AVLTree() = default;
+    AVLTree::~AVLTree() {
+        // No need to manually free memory; unique_ptr handles it
+    }
     AVLTree::AVLTree(const AVLTree& other) : pImpl(std::make_unique<AVLTreeImpl>()) {
-        if (other.pImpl->root) {
-            pImpl->root = pImpl->copyTree(other.pImpl->root);
+        if (other.pImpl && other.pImpl->root) {
+            pImpl->root = pImpl->copyTree(other.pImpl->root);  // Deep copy of the tree
+        } else {
+            pImpl->root = nullptr;
         }
     }
-    AVLTree& AVLTree::operator=(const AVLTree& other) {
-        if (this != &other) {
-            pImpl->freeMemory(pImpl->root);
-            if (other.pImpl->root) {
-                pImpl->root = pImpl->copyTree(other.pImpl->root); 
-            } else {
-                pImpl->root = nullptr;
-            }
-        }
-        return *this;
+
+    AVLTree::AVLTree(AVLTree&& other) noexcept {
+        pImpl = std::move(other.pImpl); // Transfer ownership
+        other.pImpl = std::make_unique<AVLTreeImpl>(); // Reset the moved-from object to a new, empty state
     }
-    AVLTree::AVLTree(AVLTree&& other) noexcept : pImpl(std::move(other.pImpl)) {}
+
     AVLTree& AVLTree::operator=(AVLTree&& other) noexcept {
         if (this != &other) {
+            // Release any existing resources
+            pImpl.reset();
+
+            // Transfer ownership of pImpl
             pImpl = std::move(other.pImpl);
+
+            // Reset the moved-from object to a new, empty state
+            other.pImpl = std::make_unique<AVLTreeImpl>();
         }
         return *this;
     }
 
-    bool AVLTree::operator==(const AVLTree& other) const {
-        return pImpl->compareTrees(pImpl->root, other.pImpl->root);
+    void AVLTree::insert(const double& val) {
+        pImpl->root = pImpl->insertNode(pImpl->root, val, nullptr);
     }
-    bool AVLTree::operator!=(const AVLTree& other) const {
-        return !(*this == other);
-    }
-    AVLTree& AVLTree::operator+=(const double& val) {
-        try {
-            pImpl->root = pImpl->insertNode(pImpl->root, val);
-        } catch (const std::logic_error& e) {
-            throw;
-        }
-        return *this;
-    }
-    AVLTree& AVLTree::operator-=(const double& val) {
+
+    void AVLTree::remove(double val) {
         pImpl->root = pImpl->deleteNode(pImpl->root, val);
-        return *this;
     }
-    bool AVLTree::operator[](const double& val) const {
+
+    bool AVLTree::search(double val) const {
         return pImpl->searchNode(pImpl->root, val);
     }
+
+    void AVLTree::getInOrderTraversal() const {
+        pImpl->inOrderTraversal(pImpl->root, std::cout);
+    }
+
+    std::string AVLTree::toString() const {
+        if (!pImpl || !pImpl->root) {
+            return ""; // Return an empty string if the tree is empty or pImpl is null
+        }
+        std::ostringstream os;
+        pImpl->inOrderTraversal(pImpl->root, os);
+        return os.str();
+    }
+
+    AVLTree& AVLTree::operator+=(const double& val) {
+        insert(val);
+        return *this;
+    }
+
+    AVLTree& AVLTree::operator-=(const double& val) {
+        remove(val);
+        return *this;
+    }
+
+    bool AVLTree::operator[](const double& val) const {
+        return search(val);
+    }
+
     AVLTree& AVLTree::operator--() {
         if (pImpl->root) {
             pImpl->root = pImpl->deleteNode(pImpl->root, pImpl->root->value);
         }
         return *this;
     }
+
     void AVLTree::operator!() {
-        pImpl->freeMemory(pImpl->root);
-        pImpl->root = nullptr;
+        if (pImpl) {
+            pImpl->freeMemory(pImpl->root);
+            pImpl->root = nullptr; // Ensure the tree is properly reset
+        }
+    }
+
+    bool AVLTree::operator==(const AVLTree& other) const {
+        return pImpl->compareTrees(pImpl->root, other.pImpl->root);
+    }
+
+    bool AVLTree::operator!=(const AVLTree& other) const {
+        return !(*this == other);
     }
 
     bool AVLTree::operator>(const AVLTree& other) const {
-        return this->toString().size() > other.toString().size(); 
+        return pImpl->sumValues(pImpl->root) > other.pImpl->sumValues(other.pImpl->root);
     }
 
     bool AVLTree::operator<(const AVLTree& other) const {
-        return this->toString().size() < other.toString().size(); 
+        return pImpl->sumValues(pImpl->root) < other.pImpl->sumValues(other.pImpl->root);
     }
 
     bool AVLTree::operator>=(const AVLTree& other) const {
-        return !(*this < other); 
+        return !(*this < other);
     }
 
     bool AVLTree::operator<=(const AVLTree& other) const {
-        return !(*this > other); 
-    }
-
-    void AVLTree::insert(const double& val) {
-        pImpl->root = pImpl->insertNode(pImpl->root, val);
-    }
-    void AVLTree::remove(const double& val) {
-        pImpl->root = pImpl->deleteNode(pImpl->root, val);
-    }
-    bool AVLTree::search(const double& val) const {
-        return pImpl->searchNode(pImpl->root, val);
-    }
-    void AVLTree::inOrder() const {
-        pImpl->inOrderTraversal(pImpl->root, std::cout);
-    }
-    std::string AVLTree::toString() const {
-        std::ostringstream os;
-        pImpl->inOrderTraversal(pImpl->root, os);
-        return os.str();
+        return !(*this > other);
     }
 
     std::ostream& operator<<(std::ostream& os, const AVLTree& tree) {
@@ -103,35 +141,22 @@ namespace AVLProject {
         return os;
     }
 
-    AVLTreeImpl::~AVLTreeImpl() {
-        freeMemory(root);
-    }
-
-    void AVLTreeImpl::freeMemory(AVLNode* node) {
-        if (node) {
-            freeMemory(node->left);
-            freeMemory(node->right);
-            delete node;
-        }
-    }
-
-    AVLNode* AVLTreeImpl::insertNode(AVLNode* node, const double& val) {
-        if (!node) return new AVLNode(val);
+    // AVLTreeImpl Private Methods
+    AVLNode* AVLTreeImpl::insertNode(AVLNode* node, const double& val, AVLNode* parent) {
+        if (!node) return new AVLNode(val, parent);
 
         if (val < node->value)
-            node->left = insertNode(node->left, val);
+            node->left = insertNode(node->left, val, node);
         else if (val > node->value)
-            node->right = insertNode(node->right, val);
+            node->right = insertNode(node->right, val, node);
         else
             throw std::logic_error("Duplicate value detected: " + std::to_string(val));
 
         node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
         int balance = getBalanceFactor(node);
 
-        if (balance > 1 && val < node->left->value)
-            return rotateRight(node);
-        if (balance < -1 && val > node->right->value)
-            return rotateLeft(node);
+        if (balance > 1 && val < node->left->value) return rotateRight(node);
+        if (balance < -1 && val > node->right->value) return rotateLeft(node);
         if (balance > 1 && val > node->left->value) {
             node->left = rotateLeft(node->left);
             return rotateRight(node);
@@ -154,6 +179,7 @@ namespace AVLProject {
         else {
             if (!node->left || !node->right) {
                 AVLNode* temp = node->left ? node->left : node->right;
+                if (temp) temp->parent = node->parent;
                 delete node;
                 return temp;
             } else {
@@ -168,14 +194,12 @@ namespace AVLProject {
         node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
         int balance = getBalanceFactor(node);
 
-        if (balance > 1 && getBalanceFactor(node->left) >= 0)
-            return rotateRight(node);
+        if (balance > 1 && getBalanceFactor(node->left) >= 0) return rotateRight(node);
         if (balance > 1 && getBalanceFactor(node->left) < 0) {
             node->left = rotateLeft(node->left);
             return rotateRight(node);
         }
-        if (balance < -1 && getBalanceFactor(node->right) <= 0)
-            return rotateLeft(node);
+        if (balance < -1 && getBalanceFactor(node->right) <= 0) return rotateLeft(node);
         if (balance < -1 && getBalanceFactor(node->right) > 0) {
             node->right = rotateRight(node->right);
             return rotateLeft(node);
@@ -184,11 +208,12 @@ namespace AVLProject {
         return node;
     }
 
-    AVLNode* AVLTreeImpl::minValueNode(AVLNode* node) {
-        AVLNode* current = node;
-        while (current->left)
-            current = current->left;
-        return current;
+    void AVLTreeImpl::freeMemory(AVLNode* node) {
+        if (node) {
+            freeMemory(node->left);
+            freeMemory(node->right);
+            delete node;
+        }
     }
 
     void AVLTreeImpl::inOrderTraversal(AVLNode* node, std::ostream& os) const {
@@ -221,6 +246,10 @@ namespace AVLProject {
         x->right = y;
         y->left = T2;
 
+        if (T2) T2->parent = y;
+        x->parent = y->parent;
+        y->parent = x;
+
         y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
         x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
 
@@ -234,24 +263,25 @@ namespace AVLProject {
         y->left = x;
         x->right = T2;
 
+        if (T2) T2->parent = x;
+        y->parent = x->parent;
+        x->parent = y;
+
         x->height = std::max(getHeight(x->left), getHeight(x->right)) + 1;
         y->height = std::max(getHeight(y->left), getHeight(y->right)) + 1;
 
         return y;
     }
 
-    bool AVLTreeImpl::compareTrees(const AVLNode* a, const AVLNode* b) const {
-        if (!a && !b) return true;
-        if (!a || !b) return false;
-
-        return (a->value == b->value) &&
-               compareTrees(a->left, b->left) &&
-               compareTrees(a->right, b->right);
+    AVLNode* AVLTreeImpl::minValueNode(AVLNode* node) {
+        AVLNode* current = node;
+        while (current->left)
+            current = current->left;
+        return current;
     }
 
     AVLNode* AVLTreeImpl::copyTree(const AVLNode* node) const {
         if (!node) return nullptr;
-
         AVLNode* newNode = new AVLNode(node->value);
         newNode->left = copyTree(node->left);
         newNode->right = copyTree(node->right);
@@ -259,4 +289,22 @@ namespace AVLProject {
         return newNode;
     }
 
-}
+    bool AVLTreeImpl::compareTrees(const AVLNode* a, const AVLNode* b) const {
+        if (!a && !b) return true;
+        if (!a || !b) return false;
+        return (a->value == b->value) &&
+               compareTrees(a->left, b->left) &&
+               compareTrees(a->right, b->right);
+    }
+
+    int AVLTreeImpl::countNodes(AVLNode* node) const {
+        if (!node) return 0;
+        return 1 + countNodes(node->left) + countNodes(node->right);
+    }
+
+    double AVLTreeImpl::sumValues(AVLNode* node) const {
+        if (!node) return 0;
+        return node->value + sumValues(node->left) + sumValues(node->right);
+    }
+
+}  // namespace AVLProject
