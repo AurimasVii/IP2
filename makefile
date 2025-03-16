@@ -30,6 +30,6 @@ run_test: build_test
 	./$(TEST_BIN) > $(TEST_LOG) || cat $(TEST_LOG)
 
 clean:
-	rm -f $(DEMO_BIN) $(TEST_BIN) $(CLASS_OBJ) $(TEST_LOG)
+	rm -f $(DEMO_BIN) $(TEST_BIN) $(CLASS_OBJ) $(TEST_LOG) *.exe
 
 run_all: run_demo run_test
