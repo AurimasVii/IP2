@@ -201,6 +201,18 @@ namespace AVLProject {
         friend std::ostream& operator<<(std::ostream& os, const AVLTree& tree);
     };
 
-}  // namespace AVLProject
+    /**
+     * @brief Exception class for handling duplicate values in the AVL tree.
+     */
+    class DuplicateValueException : public std::logic_error {
+    public:
+        /**
+         * @brief Constructs a DuplicateValueException with the duplicate value.
+         * @param value The duplicate value that caused the exception.
+         */
+        explicit DuplicateValueException(double value)
+            : std::logic_error("Duplicate value detected: " + std::to_string(value)) {}
+    };
 
+}
 #endif // AVL_TREE_H

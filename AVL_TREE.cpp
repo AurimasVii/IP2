@@ -150,7 +150,7 @@ namespace AVLProject {
         else if (val > node->value)
             node->right = insertNode(node->right, val, node);
         else
-            throw std::logic_error("Duplicate value detected: " + std::to_string(val));
+            throw DuplicateValueException(val);  // Pass the duplicate value to the exception
 
         node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
         int balance = getBalanceFactor(node);

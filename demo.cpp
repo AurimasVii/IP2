@@ -38,7 +38,7 @@ int main() {
         try {
             tree1 += 10;
             tree1 += 10;
-        } catch (const logic_error& e) {
+        } catch (const DuplicateValueException& e) {
             cerr << "Caught exception: " << e.what() << endl;
         }
 
@@ -50,9 +50,6 @@ int main() {
         cout << "Tree1 > Tree3: " << (tree1 > tree3 ? "True" : "False") << endl;
         cout << "Tree3 < Tree1: " << (tree3 < tree1 ? "True" : "False") << endl;
 
-    } catch (const exception& e) {
-        cerr << "Unhandled exception: " << e.what() << endl;
-        return 1;
     } catch (...) {
         cerr << "Unhandled unknown exception occurred." << endl;
         return 1;

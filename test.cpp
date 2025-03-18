@@ -133,7 +133,7 @@ void testDuplicateValue() {
     try {
         tree.insert(10);
         assert(false);
-    } catch (const std::logic_error& e) {
+    } catch (const DuplicateValueException& e) {
         assert(std::string(e.what()) == "Duplicate value detected: 10.000000");
     }
     log("Test 11: Duplicate Value - PASSED");
@@ -162,7 +162,7 @@ int main() {
 
     try {
         runTests();
-    } catch (const exception& e) {
+    } catch (const DuplicateValueException& e) {
         cerr << "Test failed: " << e.what() << endl;
         logFile << "Test failed: " << e.what() << endl;
         return 1;
