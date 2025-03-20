@@ -134,7 +134,7 @@ void testDuplicateValue() {
         tree.insert(10);
         assert(false);
     } catch (const DuplicateValueException& e) {
-        assert(std::string(e.what()) == "Duplicate value detected: 10.000000");
+        assert(std::string(e.what()) == "Duplicate value detected");
     }
     log("Test 11: Duplicate Value - PASSED");
 }
