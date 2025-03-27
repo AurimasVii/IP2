@@ -194,7 +194,7 @@ namespace AVLProject {
          * @param value The duplicate value that caused the exception.
          */
         explicit DuplicateValueException(double value)
-            : std::logic_error("Duplicate values detected: " + std::to_string(value)) {}
+            : std::logic_error("Duplicate value detected: " + std::to_string(value)) {}
     };
 
 }

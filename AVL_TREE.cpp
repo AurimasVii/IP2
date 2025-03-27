@@ -182,7 +182,7 @@ namespace AVLProject {
             node->left = insertNode(node->left, val, node);
         else if (val > node->value)
             node->right = insertNode(node->right, val, node);
-        else
+        else if(val == 2*val)
             throw DuplicateValueException(val);  // Pass the duplicate value to the exception
 
         node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
