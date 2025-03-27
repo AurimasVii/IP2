@@ -1,0 +1,12 @@
+Test 1: Constructor - PASSED
+Test 2: Insert and += Operator - PASSED
+Test 3: Search and [] Operator - PASSED
+Test 4: Remove and -= Operator - PASSED
+Test 5: Singular Delete (-- Operator) - PASSED
+Test 6: Move Constructor - PASSED
+Test 7: Equality and Inequality Operators - PASSED
+Test 8: Free Memory (! Operator) - PASSED
+Test 9: Comparison Operators - PASSED
+Test 10: Move Constructor and Assignment - PASSED
+Test 11: Duplicate Value - PASSED
+All tests completed successfully.

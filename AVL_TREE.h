@@ -12,25 +12,6 @@
 
 namespace AVLProject {
 
-    /**
-     * @brief Represents a single node in the AVL tree.
-     */
-    struct AVLNode {
-        double value;         // The value stored in the node.
-        AVLNode* left;        // Pointer to the left child.
-        AVLNode* right;       // Pointer to the right child.
-        AVLNode* parent;      // Pointer to the parent node.
-        int height;           // Height of the node in the tree.
-
-        /**
-         * @brief Constructs an AVLNode with a given value and optional parent.
-         * @param val The value to store in the node.
-         * @param parent Pointer to the parent node (default is nullptr).
-         */
-        AVLNode(double val, AVLNode* parent = nullptr)
-            : value(val), left(nullptr), right(nullptr), parent(parent), height(1) {}
-    };
-
     class AVLTreeImpl;  // Forward declaration of the implementation class
 
     /**
@@ -61,9 +42,11 @@ namespace AVLProject {
         AVLTree(const AVLTree& other);
 
         /**
-         * @brief Deleted copy assignment operator to prevent copying.
+         * @brief Copy assignment operator to copy another AVL tree.
+         * @param other The AVL tree to copy.
+         * @return Reference to the current AVL tree.
          */
-        AVLTree& operator=(const AVLTree& other) = delete;
+        AVLTree& operator=(const AVLTree& other);
 
         /**
          * @brief Move constructor to transfer ownership of resources.
@@ -211,7 +194,7 @@ namespace AVLProject {
          * @param value The duplicate value that caused the exception.
          */
         explicit DuplicateValueException(double value)
-            : std::logic_error("Duplicate value detected: " + std::to_string(value)) {}
+            : std::logic_error("Duplicate values detected: " + std::to_string(value)) {}
     };
 
 }

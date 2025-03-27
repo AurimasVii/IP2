@@ -5,6 +5,25 @@
 
 namespace AVLProject {
 
+    /**
+     * @brief Represents a single node in the AVL tree.
+     */
+    struct AVLNode {
+        double value;         ///< The value stored in the node.
+        AVLNode* left;        ///< Pointer to the left child.
+        AVLNode* right;       ///< Pointer to the right child.
+        AVLNode* parent;      ///< Pointer to the parent node.
+        int height;           ///< Height of the node in the tree.
+
+        /**
+         * @brief Constructs an AVLNode with a given value and optional parent.
+         * @param val The value to store in the node.
+         * @param parent Pointer to the parent node (default is nullptr).
+         */
+        AVLNode(double val, AVLNode* parent = nullptr)
+            : value(val), left(nullptr), right(nullptr), parent(parent), height(1) {}
+    };
+
     class AVLTreeImpl {
     public:
         AVLNode* root;
@@ -43,6 +62,20 @@ namespace AVLProject {
     AVLTree::AVLTree(AVLTree&& other) noexcept {
         pImpl = std::move(other.pImpl); // Transfer ownership
         other.pImpl = std::make_unique<AVLTreeImpl>(); // Reset the moved-from object to a new, empty state
+    }
+
+    AVLTree& AVLTree::operator=(const AVLTree& other) {
+        if (this != &other) {
+            // Free existing resources
+            pImpl->freeMemory(pImpl->root);
+            pImpl->root = nullptr;
+
+            // Deep copy the other tree
+            if (other.pImpl && other.pImpl->root) {
+                pImpl->root = pImpl->copyTree(other.pImpl->root);
+            }
+        }
+        return *this;
     }
 
     AVLTree& AVLTree::operator=(AVLTree&& other) noexcept {
@@ -113,7 +146,7 @@ namespace AVLProject {
     }
 
     bool AVLTree::operator==(const AVLTree& other) const {
-        return pImpl->compareTrees(pImpl->root, other.pImpl->root);
+        return pImpl->compareTrees(pImpl->root, other.pImpl->root); //viskas apie sumas turetu but
     }
 
     bool AVLTree::operator!=(const AVLTree& other) const {
